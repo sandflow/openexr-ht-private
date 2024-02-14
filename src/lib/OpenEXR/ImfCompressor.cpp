@@ -18,6 +18,7 @@
 #include "ImfPxr24Compressor.h"
 #include "ImfRleCompressor.h"
 #include "ImfZipCompressor.h"
+#include "ImfHTCompressor.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -63,7 +64,8 @@ isValidCompression (Compression c)
         case B44_COMPRESSION:
         case B44A_COMPRESSION:
         case DWAA_COMPRESSION:
-        case DWAB_COMPRESSION: return true;
+        case DWAB_COMPRESSION:
+        case HT_COMPRESSION: return true;
 
         default: return false;
     }
@@ -141,6 +143,10 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
                 256,
                 DwaCompressor::STATIC_HUFFMAN);
 
+        case HT_COMPRESSION:
+
+            return new HTCompressor (hdr);
+
         default: return 0;
     }
 }
@@ -163,6 +169,7 @@ numLinesInBuffer (Compression comp)
         case B44A_COMPRESSION:
         case DWAA_COMPRESSION: return 32;
         case DWAB_COMPRESSION: return 256;
+        case HT_COMPRESSION: return 16000;
 
         default: throw IEX_NAMESPACE::ArgExc ("Unknown compression type");
     }

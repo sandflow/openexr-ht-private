@@ -240,6 +240,27 @@ else()
   set(EXR_DEFLATE_LIB)
 endif()
 
+
+#######################################
+# Install OpenJPH
+#######################################
+
+# message(STATUS "Fetching OpenJPH")
+
+# include(FetchContent)
+# FetchContent_Declare(
+#   openjph
+#   GIT_REPOSITORY https://github.com/aous72/OpenJPH
+#   GIT_TAG        origin/master
+# )
+
+# FetchContent_MakeAvailable(openjph)
+
+find_path(OJPH_INCLUDE_DIR ojph_file.h PATH_SUFFIXES openjph)
+include_directories(${OJPH_INCLUDE_DIR})
+find_library(OJPH_LIBRARY NAMES openjph)
+
+
 #######################################
 # Find or install Imath
 #######################################
