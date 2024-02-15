@@ -74,7 +74,7 @@ private:
     ojph::mem_outfile          _output;
     ojph::mem_infile           _input;
     int                        _num_comps;
-    char*                      _buffer;
+    uint16_t*                  _buffer;
 
 };
 

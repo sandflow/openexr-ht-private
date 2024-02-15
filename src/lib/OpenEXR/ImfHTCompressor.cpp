@@ -163,38 +163,31 @@ HTCompressor::uncompress (
 
     this->_codestream.create ();
 
-    const ojph::ui32 pixel_size = this->_num_comps * pixelTypeSize (HALF);
+    assert(sizeof(uint16_t) == pixelTypeSize (HALF));
 
-    this->_buffer = new char[pixel_size * width * height];
+    this->_buffer = new uint16_t[this->_num_comps * width * height];
 
-    char* line_buf = this->_buffer;
+    uint16_t* line_buf = this->_buffer;
 
     for (uint32_t i = 0; i < height; ++i)
     {
-        char* pixel_buf;
-
         for (uint32_t c = 0; c < this->_num_comps; c++)
         {
             ojph::ui32      next_comp = 0;
             ojph::line_buf* cur_line  = this->_codestream.pull (next_comp);
             assert (next_comp == c);
 
-            char*       pixel_buf = line_buf + c * pixel_size;
-            ojph::si32* in        = cur_line->i32;
-
             for (uint32_t p = 0; p < width; p++)
             {
-                *reinterpret_cast<ojph::si32*> (pixel_buf) = in[p];
-                pixel_buf += pixel_size;
+                this->_buffer[i * width * this->_num_comps + c + p] = (uint16_t) (cur_line->i32[p]);
             }
         }
 
-        line_buf = pixel_buf;
     }
 
-    outPtr = this->_buffer;
+    outPtr = (const char*) this->_buffer;
 
-    return pixel_size * width * height;
+    return this->_num_comps * pixelTypeSize (HALF) * width * height;
 }
 
 int

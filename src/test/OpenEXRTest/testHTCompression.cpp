@@ -74,7 +74,7 @@ fillPixels2 (pixelArray& array, int width, int height)
             array.h[y][x] = (x + y) & 1;
             for (int c = 0; c < 4; ++c)
             {
-                array.rgba[c][y][x] = (x + y) & 1;
+                array.rgba[c][y][x] = array.h[y][x];
             }
         }
 }
