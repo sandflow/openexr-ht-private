@@ -131,7 +131,7 @@ fillPixels4 (pixelArray& array, int width, int height)
 
 void
 writeRead (
-    pixelArray& array1,
+    pixelArray& ref_array,
     const char  fileName[],
     int         width,
     int         height,
@@ -179,9 +179,9 @@ writeRead (
             "H", // name
             Slice (
                 IMF::HALF,                       // type
-                (char*) &array1.h[0][0],         // base
-                sizeof (array1.h[0][0]),         // xStride
-                sizeof (array1.h[0][0]) * width, // yStride
+                (char*) &ref_array.h[0][0],         // base
+                sizeof (ref_array.h[0][0]),         // xStride
+                sizeof (ref_array.h[0][0]) * width, // yStride
                 1,                               // xSampling
                 1)                               // ySampling
         );
@@ -192,9 +192,9 @@ writeRead (
                 channels[c], // name
                 Slice (
                     IMF::HALF,                             // type
-                    (char*) &array1.rgba[c][0][0],         // base
-                    sizeof (array1.rgba[c][0][0]),         // xStride
-                    sizeof (array1.rgba[c][0][0]) * width, // yStride
+                    (char*) &ref_array.rgba[c][0][0],         // base
+                    sizeof (ref_array.rgba[c][0][0]),         // xStride
+                    sizeof (ref_array.rgba[c][0][0]) * width, // yStride
                     1,                                     // xSampling
                     1)                                     // ySampling
             );
@@ -219,7 +219,7 @@ writeRead (
         int          dx = dw.min.x;
         int          dy = dw.min.y;
 
-        pixelArray  array2 (h, w);
+        pixelArray  decoded_array (h, w);
         FrameBuffer fb;
 
         {
@@ -230,9 +230,9 @@ writeRead (
                 "H", // name
                 Slice (
                     IMF::HALF,                   // type
-                    (char*) &array2.h[-dy][-dx], // base
-                    sizeof (array2.h[0][0]),     // xStride
-                    sizeof (array2.h[0][0]) * w, // yStride
+                    (char*) &decoded_array.h[-dy][-dx], // base
+                    sizeof (decoded_array.h[0][0]),     // xStride
+                    sizeof (decoded_array.h[0][0]) * w, // yStride
                     1,                           // xSampling
                     1)                           // ySampling
             );
@@ -247,9 +247,9 @@ writeRead (
                 channels[c], // name
                 Slice (
                     IMF::HALF,                           // type
-                    (char*) &array2.rgba[c][-dy][-dx],   // base
-                    sizeof (array2.rgba[c][0][0]),       // xStride
-                    sizeof (array2.rgba[c][0][0]) * (w), // yStride
+                    (char*) &decoded_array.rgba[c][-dy][-dx],   // base
+                    sizeof (decoded_array.rgba[c][0][0]),       // xStride
+                    sizeof (decoded_array.rgba[c][0][0]) * (w), // yStride
                     1,                                   // xSampling
                     1)                                   // ySampling
             );
@@ -292,12 +292,12 @@ writeRead (
 
                 if (!isLossyCompression (comp))
                 {
-                    assert (array1.h[y][x].bits () == array2.h[y][x].bits ());
+                    assert (ref_array.h[y][x].bits () == decoded_array.h[y][x].bits ());
                     for (int c = 0; c < 4; ++c)
                     {
                         assert (
-                            array1.rgba[c][y][x].bits () ==
-                            array2.rgba[c][y][x].bits ());
+                            ref_array.rgba[c][y][x].bits () ==
+                            decoded_array.rgba[c][y][x].bits ());
                     }
                 }
             }

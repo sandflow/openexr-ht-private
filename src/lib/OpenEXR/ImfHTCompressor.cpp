@@ -97,12 +97,11 @@ HTCompressor::compress (
 
     this->_codestream.write_headers (&this->_output);
 
-    const char*      line       = inPtr;
-    const ojph::ui32 pixel_size = this->_num_comps * pixelTypeSize (HALF);
+    assert (inSize == ( this->_num_comps * pixelTypeSize (HALF) * height * width));
+
+    const uint16_t*  pixels  = (const uint16_t*) inPtr;
     ojph::ui32       next_comp  = 0;
     ojph::line_buf*  cur_line   = this->_codestream.exchange (NULL, next_comp);
-
-    assert (inSize == (pixel_size * height * width));
 
     for (ojph::ui32 i = 0; i < height; ++i)
     {
@@ -112,19 +111,15 @@ HTCompressor::compress (
         {
             assert (next_comp == c);
 
-            in_buf = line + pixelTypeSize (HALF) * c;
-
             for (uint32_t p = 0; p < width; p++)
             {
                 cur_line->i32[p] =
-                    *reinterpret_cast<const ojph::si32*> (in_buf);
-                in_buf += pixel_size;
+                    static_cast<const ojph::si32> (*pixels++);
             }
 
             cur_line = this->_codestream.exchange (cur_line, next_comp);
         }
 
-        line = in_buf;
     }
 
     this->_codestream.flush ();
@@ -167,7 +162,7 @@ HTCompressor::uncompress (
 
     this->_buffer = new uint16_t[this->_num_comps * width * height];
 
-    uint16_t* line_buf = this->_buffer;
+    uint16_t* pixel = this->_buffer;
 
     for (uint32_t i = 0; i < height; ++i)
     {
@@ -179,7 +174,7 @@ HTCompressor::uncompress (
 
             for (uint32_t p = 0; p < width; p++)
             {
-                this->_buffer[i * width * this->_num_comps + c + p] = (uint16_t) (cur_line->i32[p]);
+                *pixel++ = (uint16_t) (cur_line->i32[p]);
             }
         }
 
