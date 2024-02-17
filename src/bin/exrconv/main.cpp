@@ -403,7 +403,7 @@ int main(int argc, char* argv[])
     header.compression () = selected_compression;
 
 
-    RgbaOutputFile o_file(output_filename, header);
+    RgbaOutputFile o_file(output_filename, header, WRITE_RGB);
     o_file.setFrameBuffer(&pixels[-dw.min.x][-dw.min.y], 1, width);
     o_file.writePixels(height);
 

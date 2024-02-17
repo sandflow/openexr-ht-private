@@ -80,7 +80,7 @@ HTCompressor::compress (
 
     siz.set_num_components (this->_num_comps);
     for (ojph::ui32 c = 0; c < this->_num_comps; c++)
-        siz.set_component (c, ojph::point (1, 1), 16, false);
+        siz.set_component (c, ojph::point (1, 1), 16, true);
 
     /* TODO: extend to multiple tiles and non-coincident data and display windows */
     siz.set_image_offset (ojph::point (0, 0));
@@ -101,7 +101,7 @@ HTCompressor::compress (
 
     assert (inSize == ( this->_num_comps * pixelTypeSize (HALF) * height * width));
 
-    const uint16_t*  pixels  = (const uint16_t*) inPtr;
+    const int16_t*   pixels  = (const int16_t*) inPtr;
     ojph::ui32       next_comp  = 0;
     ojph::line_buf*  cur_line   = this->_codestream.exchange (NULL, next_comp);
 
@@ -115,8 +115,9 @@ HTCompressor::compress (
 
             for (uint32_t p = 0; p < width; p++)
             {
-                cur_line->i32[p] =
-                    static_cast<const ojph::si32> (*pixels++);
+                ojph::si32 c = static_cast<const ojph::si32> (*pixels++);
+
+                cur_line->i32[p] = c < 0 ? -32769 - c : c;
             }
 
             cur_line = this->_codestream.exchange (cur_line, next_comp);
@@ -160,11 +161,11 @@ HTCompressor::uncompress (
 
     this->_codestream.create ();
 
-    assert(sizeof(uint16_t) == pixelTypeSize (HALF));
+    assert(sizeof(int16_t) == pixelTypeSize (HALF));
 
-    this->_buffer = new uint16_t[this->_num_comps * width * height];
+    this->_buffer = new int16_t[this->_num_comps * width * height];
 
-    uint16_t* pixel = this->_buffer;
+    int16_t* pixel = this->_buffer;
 
     for (uint32_t i = 0; i < height; ++i)
     {
@@ -176,7 +177,9 @@ HTCompressor::uncompress (
 
             for (uint32_t p = 0; p < width; p++)
             {
-                *pixel++ = (uint16_t) (cur_line->i32[p]);
+                ojph::si32 c = cur_line->i32[p];
+
+                *pixel++ = (int16_t) (c < 0 ? -32769 - c : c);
             }
         }
 
