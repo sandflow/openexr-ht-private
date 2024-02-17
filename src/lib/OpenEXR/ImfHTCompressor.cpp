@@ -92,6 +92,8 @@ HTCompressor::compress (
 
     cod.set_color_transform (this->_num_comps == 3 || this->_num_comps == 4);
     cod.set_reversible (true);
+    cod.set_block_dims(128, 32);
+    cod.set_num_decomposition(5);
 
     this->_output.open ();
 
