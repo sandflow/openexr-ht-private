@@ -243,11 +243,14 @@ main (int argc, char* argv[])
 
     if (args["verbose"].as<bool> ())
       std::cout
-          << "c, n, encoded size, encode time mean, encode time stddev, decode time mean, decode time stddev"
+          << "fn, c, n, encoded size, encode time mean, encode time stddev, decode time mean, decode time stddev"
           << std::endl;
 
-    std::cout << args["compression"].as<std::string> () << ", "
-              << args["repetitions"].as<int> () << ", " << encode_time_mean
+    std::string fn = src_fn.substr(src_fn.find_last_of("/\\") + 1);
+
+    std::cout << fn << ", "
+              << args["compression"].as<std::string> () << ", "
+              << args["repetitions"].as<int> () << ", " << encoded_size << ", " << encode_time_mean
               << ", " << encode_time_dev << ", " << decode_time_mean << ", "
               << decode_time_dev << std::endl;
 
