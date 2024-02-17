@@ -120,9 +120,9 @@ main (int argc, char* argv[])
     int   width  = dw.max.x - dw.min.x + 1;
     int   height = dw.max.y - dw.min.y + 1;
 
-    Array2D<Rgba> pixels (height, width);
+    Array2D<Rgba> src_pixels (width, height);
 
-    src_file.setFrameBuffer (&pixels[-dw.min.x][-dw.min.y], 1, width);
+    src_file.setFrameBuffer (&src_pixels[-dw.min.x][-dw.min.y], 1, width);
     src_file.readPixels (dw.min.y, dw.max.y);
 
     Header src_header         = src_file.header ();
@@ -130,7 +130,7 @@ main (int argc, char* argv[])
 
     /* single threaded */
 
-    setGlobalThreadCount(1);
+    setGlobalThreadCount (1);
 
     /* mem buffer */
 
@@ -141,7 +141,7 @@ main (int argc, char* argv[])
     OMemStream o_memfile (&mem_file);
 
     RgbaOutputFile o_file (o_memfile, src_header, src_file.channels ());
-    o_file.setFrameBuffer (&pixels[-dw.min.x][-dw.min.y], 1, width);
+    o_file.setFrameBuffer (&src_pixels[-dw.min.x][-dw.min.y], 1, width);
 
     auto start = std::chrono::high_resolution_clock::now ();
     o_file.writePixels (height);
@@ -156,7 +156,9 @@ main (int argc, char* argv[])
     IMemStream i_memfile (&mem_file);
 
     RgbaInputFile i_file (i_memfile);
-    i_file.setFrameBuffer (&pixels[-dw.min.x][-dw.min.y], 1, width);
+
+    Array2D<Rgba> decoded_pixels (width, height);
+    i_file.setFrameBuffer (&decoded_pixels[-dw.min.x][-dw.min.y], 1, width);
 
     start = std::chrono::high_resolution_clock::now ();
     i_file.readPixels (dw.min.y, dw.max.y);
@@ -164,6 +166,22 @@ main (int argc, char* argv[])
 
     std::cout << "Decode time: " << std::chrono::duration<double> (dur).count ()
               << std::endl;
+
+    /* compare pixels */
+
+    for (size_t y = 0; y < height; y++)
+    {
+        for (size_t x = 0; x < width; x++)
+        {
+            if (decoded_pixels[x][y].r != src_pixels[x][y].r ||
+                decoded_pixels[x][y].g != src_pixels[x][y].g ||
+                decoded_pixels[x][y].b != src_pixels[x][y].b)
+            {
+              std::cerr << "Not lossless at " << x << ", " << y << std::endl;
+              exit (-1);
+            }
+        }
+    }
 
     return 0;
 }
