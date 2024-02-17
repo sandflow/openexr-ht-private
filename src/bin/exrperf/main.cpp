@@ -1,6 +1,8 @@
 #include <string>
 #include <map>
 #include <chrono>
+#include <numeric>
+#include <cmath>
 
 #include "ImfArray.h"
 #include "ImfCompression.h"
@@ -28,6 +30,34 @@ static std::map<std::string, Compression> comp_table = {
      {"DWAA_COMPRESSION", DWAA_COMPRESSION},
      {"DWAB_COMPRESSION", DWAA_COMPRESSION},
      {"HT_COMPRESSION", HT_COMPRESSION}}};
+
+template <class T>
+double
+mean (const T& v)
+{
+    double r = 0;
+
+    for (auto i = v.begin (); i != v.end (); i++)
+    {
+        r += *i;
+    }
+
+    return r / static_cast<double> (v.size ());
+}
+
+template <class T>
+double
+stddev (const T& v, double mean)
+{
+    double r = 0;
+
+    for (auto i = v.begin (); i != v.end (); i++)
+    {
+        r += pow (*i - mean, 2);
+    }
+
+    return sqrt (r / static_cast<double> (v.size ()));
+}
 
 class OMemStream : public OStream
 {
@@ -94,6 +124,7 @@ main (int argc, char* argv[])
         "r,repetitions",
         "Repetition count",
         cxxopts::value<int> ()->default_value ("5")) (
+        "v,verbose", "Output more information", cxxopts::value<bool> ()->default_value("false")) (
         "file", "Input image", cxxopts::value<std::string> ()) (
         "compression", "Compression", cxxopts::value<std::string> ());
 
@@ -138,50 +169,87 @@ main (int argc, char* argv[])
 
     /* encode performance */
 
-    OMemStream o_memfile (&mem_file);
+    std::vector<double> encode_times;
 
-    RgbaOutputFile o_file (o_memfile, src_header, src_file.channels ());
-    o_file.setFrameBuffer (&src_pixels[-dw.min.x][-dw.min.y], 1, width);
+    int encoded_size;
 
-    auto start = std::chrono::high_resolution_clock::now ();
-    o_file.writePixels (height);
-    auto dur = std::chrono::high_resolution_clock::now () - start;
+    for (int i = 0; i < args["repetitions"].as<int> (); i++)
+    {
 
-    std::cout << "Encode time: " << std::chrono::duration<double> (dur).count ()
-              << std::endl;
-    std::cout << "Encoded size: " << mem_file.tellp () << std::endl;
+        OMemStream o_memfile (&mem_file);
+
+        RgbaOutputFile o_file (o_memfile, src_header, src_file.channels ());
+        o_file.setFrameBuffer (&src_pixels[-dw.min.x][-dw.min.y], 1, width);
+
+        auto start = std::chrono::high_resolution_clock::now ();
+        o_file.writePixels (height);
+        auto dur = std::chrono::high_resolution_clock::now () - start;
+
+        encode_times.push_back (std::chrono::duration<double> (dur).count ());
+
+        // std::cout << "Encode time: "
+        //           << std::chrono::duration<double> (dur).count () << std::endl;
+        // std::cout << "Encoded size: " << mem_file.tellp () << std::endl;
+
+        if (i == 0) { encoded_size = mem_file.tellp (); }
+    }
 
     /* decode performance */
 
-    IMemStream i_memfile (&mem_file);
+    std::vector<double> decode_times;
 
-    RgbaInputFile i_file (i_memfile);
-
-    Array2D<Rgba> decoded_pixels (width, height);
-    i_file.setFrameBuffer (&decoded_pixels[-dw.min.x][-dw.min.y], 1, width);
-
-    start = std::chrono::high_resolution_clock::now ();
-    i_file.readPixels (dw.min.y, dw.max.y);
-    dur = std::chrono::high_resolution_clock::now () - start;
-
-    std::cout << "Decode time: " << std::chrono::duration<double> (dur).count ()
-              << std::endl;
-
-    /* compare pixels */
-
-    for (size_t y = 0; y < height; y++)
+    for (int i = 0; i < args["repetitions"].as<int> (); i++)
     {
-        for (size_t x = 0; x < width; x++)
+
+        IMemStream i_memfile (&mem_file);
+
+        RgbaInputFile i_file (i_memfile);
+
+        Array2D<Rgba> decoded_pixels (width, height);
+        i_file.setFrameBuffer (&decoded_pixels[-dw.min.x][-dw.min.y], 1, width);
+
+        auto start = std::chrono::high_resolution_clock::now ();
+        i_file.readPixels (dw.min.y, dw.max.y);
+        auto dur = std::chrono::high_resolution_clock::now () - start;
+
+        decode_times.push_back (std::chrono::duration<double> (dur).count ());
+
+        // std::cout << "Decode time: "
+        //           << std::chrono::duration<double> (dur).count () << std::endl;
+
+        /* compare pixels */
+
+        for (size_t y = 0; y < height; y++)
         {
-            if (decoded_pixels[x][y].r != src_pixels[x][y].r ||
-                decoded_pixels[x][y].g != src_pixels[x][y].g ||
-                decoded_pixels[x][y].b != src_pixels[x][y].b)
+            for (size_t x = 0; x < width; x++)
             {
-              std::cerr << "Not lossless at " << x << ", " << y << std::endl;
-              exit (-1);
+                if (decoded_pixels[x][y].r != src_pixels[x][y].r ||
+                    decoded_pixels[x][y].g != src_pixels[x][y].g ||
+                    decoded_pixels[x][y].b != src_pixels[x][y].b)
+                {
+                    std::cerr << "Not lossless at " << x << ", " << y
+                              << std::endl;
+                    exit (-1);
+                }
             }
         }
     }
+
+    double encode_time_mean = mean (encode_times);
+    double encode_time_dev  = stddev (encode_times, encode_time_mean);
+
+    double decode_time_mean = mean (decode_times);
+    double decode_time_dev  = stddev (decode_times, decode_time_mean);
+
+    if (args["verbose"].as<bool> ())
+      std::cout
+          << "c, n, encoded size, encode time mean, encode time stddev, decode time mean, decode time stddev"
+          << std::endl;
+
+    std::cout << args["compression"].as<std::string> () << ", "
+              << args["repetitions"].as<int> () << ", " << encode_time_mean
+              << ", " << encode_time_dev << ", " << decode_time_mean << ", "
+              << decode_time_dev << std::endl;
 
     return 0;
 }
