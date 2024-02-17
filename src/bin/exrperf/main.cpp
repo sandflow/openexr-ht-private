@@ -128,6 +128,10 @@ main (int argc, char* argv[])
     Header src_header         = src_file.header ();
     src_header.compression () = c;
 
+    /* single threaded */
+
+    setGlobalThreadCount(1);
+
     /* mem buffer */
 
     std::stringstream mem_file;
