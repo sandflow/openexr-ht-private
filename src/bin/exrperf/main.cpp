@@ -124,7 +124,12 @@ main (int argc, char* argv[])
         "r,repetitions",
         "Repetition count",
         cxxopts::value<int> ()->default_value ("5")) (
-        "v,verbose", "Output more information", cxxopts::value<bool> ()->default_value("false")) (
+        "t,threads",
+        "Number of threads",
+        cxxopts::value<int> ()->default_value ("1")) (
+        "v,verbose",
+        "Output more information",
+        cxxopts::value<bool> ()->default_value ("false")) (
         "file", "Input image", cxxopts::value<std::string> ()) (
         "compression", "Compression", cxxopts::value<std::string> ());
 
@@ -159,9 +164,9 @@ main (int argc, char* argv[])
     Header src_header         = src_file.header ();
     src_header.compression () = c;
 
-    /* single threaded */
+    /* thread count */
 
-    setGlobalThreadCount (1);
+    setGlobalThreadCount (args["threads"].as<int> ());
 
     /* mem buffer */
 
@@ -242,17 +247,17 @@ main (int argc, char* argv[])
     double decode_time_dev  = stddev (decode_times, decode_time_mean);
 
     if (args["verbose"].as<bool> ())
-      std::cout
-          << "fn, c, n, encoded size, encode time mean, encode time stddev, decode time mean, decode time stddev"
-          << std::endl;
+        std::cout
+            << "fn, c, n, threads, encoded size, encode time mean, encode time stddev, decode time mean, decode time stddev"
+            << std::endl;
 
-    std::string fn = src_fn.substr(src_fn.find_last_of("/\\") + 1);
+    std::string fn = src_fn.substr (src_fn.find_last_of ("/\\") + 1);
 
-    std::cout << fn << ", "
-              << args["compression"].as<std::string> () << ", "
-              << args["repetitions"].as<int> () << ", " << encoded_size << ", " << encode_time_mean
-              << ", " << encode_time_dev << ", " << decode_time_mean << ", "
-              << decode_time_dev << std::endl;
+    std::cout << fn << ", " << args["compression"].as<std::string> () << ", "
+              << args["repetitions"].as<int> () << ", "
+              << args["threads"].as<int> () << ", " << encoded_size << ", "
+              << encode_time_mean << ", " << encode_time_dev << ", "
+              << decode_time_mean << ", " << decode_time_dev << std::endl;
 
     return 0;
 }
