@@ -27,6 +27,9 @@ function(OPENEXR_DEFINE_LIBRARY libname)
                           PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
                           INTERFACE cxx_std_11 )
 
+  # we are embedding OpenJPH
+  target_include_directories(${objlib} PRIVATE ${openjph_SOURCE_DIR}/src/core/common)
+
   # we are embedding libdeflate
   target_include_directories(${objlib} PRIVATE ${EXR_DEFLATE_INCLUDE_DIR})
 

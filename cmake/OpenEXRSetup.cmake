@@ -242,23 +242,27 @@ endif()
 
 
 #######################################
-# Install OpenJPH
+# Get OpenJPH
 #######################################
 
-# message(STATUS "Fetching OpenJPH")
+message(STATUS "Fetching OpenJPH")
 
-# include(FetchContent)
-# FetchContent_Declare(
-#   openjph
-#   GIT_REPOSITORY https://github.com/aous72/OpenJPH
-#   GIT_TAG        origin/master
-# )
+include(FetchContent)
+FetchContent_Declare(
+  openjph
+  GIT_REPOSITORY https://github.com/aous72/OpenJPH
+  GIT_TAG        origin/master
+)
+FetchContent_MakeAvailable(openjph)
 
-# FetchContent_MakeAvailable(openjph)
+# Library style
+# find_path(OJPH_INCLUDE_DIR ojph_file.h PATH_SUFFIXES openjph)
+# include_directories(${OJPH_INCLUDE_DIR})
+# find_library(OJPH_LIBRARY NAMES openjph)
 
-find_path(OJPH_INCLUDE_DIR ojph_file.h PATH_SUFFIXES openjph)
-include_directories(${OJPH_INCLUDE_DIR})
-find_library(OJPH_LIBRARY NAMES openjph)
+# Hardcoded style
+#set(openjph_SOURCE_DIR ${CMAKE_SOURCE_DIR}/build/openjph)
+#add_subdirectory(${openjph_SOURCE_DIR})
 
 
 #######################################
