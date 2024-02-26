@@ -132,6 +132,9 @@ main (int argc, char* argv[])
         "v,verbose",
         "Output more information",
         cxxopts::value<bool> ()->default_value ("false")) (
+        "l",
+        "Line by line read",
+        cxxopts::value<bool> ()->default_value ("false")) (
         "file", "Input image", cxxopts::value<std::string> ()) (
         "compression", "Compression", cxxopts::value<std::string> ());
 
@@ -194,10 +197,6 @@ main (int argc, char* argv[])
 
         encode_times.push_back (std::chrono::duration<double> (dur).count ());
 
-        // std::cout << "Encode time: "
-        //           << std::chrono::duration<double> (dur).count () << std::endl;
-        // std::cout << "Encoded size: " << mem_file.tellp () << std::endl;
-
         if (i == 0) { encoded_size = mem_file.tellp (); }
     }
 
@@ -216,16 +215,17 @@ main (int argc, char* argv[])
         i_file.setFrameBuffer (&decoded_pixels[-dw.min.x][-dw.min.y], 1, width);
 
         auto start = std::chrono::high_resolution_clock::now ();
-        for (size_t j = dw.min.y; j <= dw.max.y; j++)
-        {
-            i_file.readPixels (j, j);
+        if (args["l"].as<bool> ()) {
+            for (size_t j = dw.min.y; j <= dw.max.y; j++)
+            {
+                i_file.readPixels (j, j);
+            }
+        } else {
+            i_file.readPixels (dw.min.y, dw.max.y);
         }
         auto dur = std::chrono::high_resolution_clock::now () - start;
 
         decode_times.push_back (std::chrono::duration<double> (dur).count ());
-
-        // std::cout << "Decode time: "
-        //           << std::chrono::duration<double> (dur).count () << std::endl;
 
         /* compare pixels */
 
