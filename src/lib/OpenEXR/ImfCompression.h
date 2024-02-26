@@ -47,6 +47,8 @@ enum IMF_EXPORT_ENUM Compression
 
     HT_COMPRESSION = 10,
 
+    HT256_COMPRESSION = 11,
+
     NUM_COMPRESSION_METHODS // number of different compression methods
 };
 

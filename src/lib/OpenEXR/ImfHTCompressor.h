@@ -24,7 +24,7 @@ OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_ENTER
 class HTCompressor : public Compressor
 {
 public:
-    HTCompressor (const Header& hdr);
+    HTCompressor (const Header& hdr, int numScanLines = 0);
 
     virtual ~HTCompressor ();
 
@@ -74,7 +74,8 @@ private:
     ojph::mem_outfile          _output;
     ojph::mem_infile           _input;
     int                        _num_comps;
-    int16_t*                  _buffer;
+    int16_t*                   _buffer;
+    int                        _numScanLines;
 
 };
 

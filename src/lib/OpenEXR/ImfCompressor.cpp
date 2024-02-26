@@ -65,7 +65,8 @@ isValidCompression (Compression c)
         case B44A_COMPRESSION:
         case DWAA_COMPRESSION:
         case DWAB_COMPRESSION:
-        case HT_COMPRESSION: return true;
+        case HT_COMPRESSION:
+        case HT256_COMPRESSION: return true;
 
         default: return false;
     }
@@ -147,6 +148,10 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 
             return new HTCompressor (hdr);
 
+         case HT256_COMPRESSION:
+
+            return new HTCompressor (hdr, 256);
+
         default: return 0;
     }
 }
@@ -168,6 +173,7 @@ numLinesInBuffer (Compression comp)
         case B44_COMPRESSION:
         case B44A_COMPRESSION:
         case DWAA_COMPRESSION: return 32;
+        case HT256_COMPRESSION:
         case DWAB_COMPRESSION: return 256;
         case HT_COMPRESSION: return 16000;
 

@@ -42,7 +42,8 @@ static const char *compression_string_table[NUM_COMPRESSION_METHODS] = {
                               // of 256 scanlines. More efficient space
                               // wise and faster to decode full frames
                               // than DWAA_COMPRESSION.
-"HT_COMPRESSION"
+"HT_COMPRESSION",
+"HT256_COMPRESSION",
 };
 
 void print_argument_list(int argc, char* argv[])

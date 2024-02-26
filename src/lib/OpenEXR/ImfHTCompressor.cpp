@@ -32,8 +32,8 @@ using IMATH_NAMESPACE::Box2i;
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-HTCompressor::HTCompressor (const Header& hdr)
-    : Compressor (hdr), _num_comps (0), _buffer (NULL)
+HTCompressor::HTCompressor (const Header& hdr, int numScanLines)
+    : Compressor (hdr), _num_comps (0), _buffer (NULL), _numScanLines()
 {
     const ChannelList& channels = header ().channels ();
 
@@ -45,6 +45,8 @@ HTCompressor::HTCompressor (const Header& hdr)
         assert (c.channel ().ySampling == 1);
         this->_num_comps++;
     }
+
+    this->_numScanLines = numScanLines > 0 ? numScanLines : 16000;
 }
 
 HTCompressor::~HTCompressor ()
@@ -57,7 +59,7 @@ HTCompressor::~HTCompressor ()
 int
 HTCompressor::numScanLines () const
 {
-    return 16000;
+    return this->_numScanLines;
 }
 
 Compressor::Format
@@ -71,7 +73,7 @@ HTCompressor::compress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
     Box2i      dw     = this->header ().dataWindow ();
-    ojph::ui32 height = dw.size ().y + 1;
+    ojph::ui32 height = std::min(dw.size ().y + 1 - minY, this->_numScanLines);
     ojph::ui32 width  = dw.size ().x + 1;
 
     this->_codestream.set_planar (false);

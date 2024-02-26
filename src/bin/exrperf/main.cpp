@@ -29,7 +29,9 @@ static std::map<std::string, Compression> comp_table = {
      {"B44A_COMPRESSION", B44A_COMPRESSION},
      {"DWAA_COMPRESSION", DWAA_COMPRESSION},
      {"DWAB_COMPRESSION", DWAA_COMPRESSION},
-     {"HT_COMPRESSION", HT_COMPRESSION}}};
+     {"HT_COMPRESSION", HT_COMPRESSION},
+     {"HT256_COMPRESSION", HT256_COMPRESSION}}
+};
 
 template <class T>
 double
@@ -214,7 +216,10 @@ main (int argc, char* argv[])
         i_file.setFrameBuffer (&decoded_pixels[-dw.min.x][-dw.min.y], 1, width);
 
         auto start = std::chrono::high_resolution_clock::now ();
-        i_file.readPixels (dw.min.y, dw.max.y);
+        for (size_t j = dw.min.y; j <= dw.max.y; j++)
+        {
+            i_file.readPixels (j, j);
+        }
         auto dur = std::chrono::high_resolution_clock::now () - start;
 
         decode_times.push_back (std::chrono::duration<double> (dur).count ());

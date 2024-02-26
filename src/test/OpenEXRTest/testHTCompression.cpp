@@ -315,6 +315,7 @@ writeRead (
     std::string filename = tempDir + "imf_test_comp.exr";
 
     writeRead (array, filename.c_str (), w, h, HT_COMPRESSION);
+    writeRead (array, filename.c_str (), w, h, HT256_COMPRESSION);
 }
 
 } // namespace
