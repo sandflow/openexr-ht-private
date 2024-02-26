@@ -255,16 +255,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(openjph)
 
-# Library style
-# find_path(OJPH_INCLUDE_DIR ojph_file.h PATH_SUFFIXES openjph)
-# include_directories(${OJPH_INCLUDE_DIR})
-# find_library(OJPH_LIBRARY NAMES openjph)
-
-# Hardcoded style
-#set(openjph_SOURCE_DIR ${CMAKE_SOURCE_DIR}/build/openjph)
-#add_subdirectory(${openjph_SOURCE_DIR})
-
-
 #######################################
 # Find or install Imath
 #######################################
