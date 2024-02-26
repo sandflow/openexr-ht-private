@@ -137,16 +137,6 @@ HTCompressor::compress (
 }
 
 int
-HTCompressor::compressTile (
-    const char*            inPtr,
-    int                    inSize,
-    IMATH_NAMESPACE::Box2i range,
-    const char*&           outPtr)
-{
-    assert (0);
-}
-
-int
 HTCompressor::uncompress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
@@ -190,16 +180,6 @@ HTCompressor::uncompress (
     outPtr = (const char*) this->_buffer;
 
     return this->_num_comps * pixelTypeSize (HALF) * width * height;
-}
-
-int
-HTCompressor::uncompressTile (
-    const char*            inPtr,
-    int                    inSize,
-    IMATH_NAMESPACE::Box2i range,
-    const char*&           outPtr)
-{
-    assert (0);
 }
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_EXIT

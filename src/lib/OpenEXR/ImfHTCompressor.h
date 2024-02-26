@@ -40,35 +40,10 @@ public:
     virtual int
     compress (const char* inPtr, int inSize, int minY, const char*& outPtr);
 
-    virtual int compressTile (
-        const char*            inPtr,
-        int                    inSize,
-        IMATH_NAMESPACE::Box2i range,
-        const char*&           outPtr);
-
     virtual int
     uncompress (const char* inPtr, int inSize, int minY, const char*& outPtr);
 
-    virtual int uncompressTile (
-        const char*            inPtr,
-        int                    inSize,
-        IMATH_NAMESPACE::Box2i range,
-        const char*&           outPtr);
-
 private:
-    struct ChannelData;
-
-    int compress (
-        const char*            inPtr,
-        int                    inSize,
-        IMATH_NAMESPACE::Box2i range,
-        const char*&           outPtr);
-
-    int uncompress (
-        const char*            inPtr,
-        int                    inSize,
-        IMATH_NAMESPACE::Box2i range,
-        const char*&           outPtr);
 
     ojph::codestream           _codestream;
     ojph::mem_outfile          _output;
