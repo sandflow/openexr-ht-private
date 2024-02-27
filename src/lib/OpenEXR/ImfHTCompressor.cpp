@@ -97,12 +97,6 @@ HTCompressor::HTCompressor (const Header& hdr, int numScanLines)
         }
     }
 
-    this->_file_to_cs_ch.resize (this->_num_comps);
-
-    for (int i = 0; i < this->_num_comps; i++)
-    {
-        this->_file_to_cs_ch[this->_cs_to_file_ch[i]] = i;
-    }
 }
 
 HTCompressor::~HTCompressor ()

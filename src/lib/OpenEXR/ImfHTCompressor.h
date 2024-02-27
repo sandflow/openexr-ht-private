@@ -54,7 +54,6 @@ private:
     int16_t*                   _buffer;
     int                        _numScanLines;
     std::vector<int>           _cs_to_file_ch;    /* maps from codestream channel to file channel */
-    std::vector<int>           _file_to_cs_ch;    /* maps from file channel to codestream channel */
     bool                       _isRGB;
 };
 
