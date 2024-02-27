@@ -12,6 +12,8 @@
 //
 //-----------------------------------------------------------------------------
 
+#include <vector>
+
 #include "ImfNamespace.h"
 
 #include "ImfCompressor.h"
@@ -51,7 +53,9 @@ private:
     int                        _num_comps;
     int16_t*                   _buffer;
     int                        _numScanLines;
-
+    std::vector<int>           _cs_to_file_ch;    /* maps from codestream channel to file channel */
+    std::vector<int>           _file_to_cs_ch;    /* maps from file channel to codestream channel */
+    bool                       _isRGB;
 };
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_HEADER_EXIT
