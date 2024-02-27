@@ -50,6 +50,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   if(OPENEXR_CURLIB_PRIVATE_DEPS)
     target_link_libraries(${objlib} PRIVATE ${OPENEXR_CURLIB_PRIVATE_DEPS})
   endif()
+  target_link_libraries(${objlib} PRIVATE openjph)
   set_target_properties(${objlib} PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF

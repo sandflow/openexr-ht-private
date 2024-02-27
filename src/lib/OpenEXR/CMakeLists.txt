@@ -220,5 +220,4 @@ openexr_define_library(OpenEXR
     OpenEXR::Iex
     OpenEXR::IlmThread
     OpenEXR::OpenEXRCore
-    ${OJPH_LIBRARY}
   )
