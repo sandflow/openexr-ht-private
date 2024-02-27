@@ -92,7 +92,9 @@ isValidDeepCompression (Compression c)
     {
         case NO_COMPRESSION:
         case RLE_COMPRESSION:
-        case ZIPS_COMPRESSION: return true;
+        case ZIPS_COMPRESSION:
+        case HT_COMPRESSION:
+        case HT256_COMPRESSION: return true;
         default: return false;
     }
 }
