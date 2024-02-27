@@ -52,12 +52,14 @@ HTCompressor::HTCompressor (const Header& hdr, int numScanLines)
         assert (c.channel ().xSampling == 1);
         assert (c.channel ().ySampling == 1);
 
-        if (c.name () == "R") { r_index = this->_num_comps; }
-        else if (c.name () == "G")
+        std::string name (c.name ());
+
+        if (name == "R") { r_index = this->_num_comps; }
+        else if (name == "G")
         {
             g_index = this->_num_comps;
         }
-        else if (c.name () == "B")
+        else if (name ==  "B")
         {
             b_index = this->_num_comps;
         }
@@ -67,7 +69,7 @@ HTCompressor::HTCompressor (const Header& hdr, int numScanLines)
 
     this->_cs_to_file_ch.resize (this->_num_comps);
 
-    if (r_index > 0 && g_index > 0 && b_index > 0)
+    if (r_index >= 0 && g_index >= 0 && b_index >= 0)
     {
         this->_isRGB = true;
 
@@ -81,7 +83,7 @@ HTCompressor::HTCompressor (const Header& hdr, int numScanLines)
              c != channels.end ();
              ++c)
         {
-            if (c.name () != "R" && c.name () != "G" && c.name () != "B")
+            if (file_i != r_index && file_i != g_index && file_i != b_index)
             { this->_cs_to_file_ch[cs_i++] = file_i; }
 
             file_i++;
