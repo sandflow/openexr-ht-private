@@ -1099,8 +1099,7 @@ void ScanLineInputFile::initialize(const Header& header)
 
         Compression comp = _data->header.compression();
 
-        _data->linesInBuffer =
-            numLinesInBuffer (comp);
+        _data->linesInBuffer = comp == HT_COMPRESSION ? (_data->maxY - _data->minY + 1) : numLinesInBuffer (comp);
 
         uint64_t lineOffsetSize =
             (static_cast<int64_t>(dataWindow.max.y) - static_cast<int64_t>(dataWindow.min.y) + static_cast<int64_t>(_data->linesInBuffer)) /

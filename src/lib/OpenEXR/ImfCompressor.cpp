@@ -19,6 +19,7 @@
 #include "ImfDwaCompressor.h"
 #include "ImfCheckedArithmetic.h"
 #include "ImfNamespace.h"
+#include "ImfHTCompressor.h"
 
 OPENEXR_IMF_INTERNAL_NAMESPACE_SOURCE_ENTER
 
@@ -63,16 +64,18 @@ isValidCompression (Compression c)
 {
     switch (c)
     {
-      case NO_COMPRESSION:
-      case RLE_COMPRESSION:
-      case ZIPS_COMPRESSION:
-      case ZIP_COMPRESSION:
-      case PIZ_COMPRESSION:
-      case PXR24_COMPRESSION:
-      case B44_COMPRESSION:
-      case B44A_COMPRESSION:
-      case DWAA_COMPRESSION:
-      case DWAB_COMPRESSION:
+        case NO_COMPRESSION:
+        case RLE_COMPRESSION:
+        case ZIPS_COMPRESSION:
+        case ZIP_COMPRESSION:
+        case PIZ_COMPRESSION:
+        case PXR24_COMPRESSION:
+        case B44_COMPRESSION:
+        case B44A_COMPRESSION:
+        case DWAA_COMPRESSION:
+        case DWAB_COMPRESSION:
+        case HT_COMPRESSION:
+        case HT256_COMPRESSION: return true;
 
 	return true;
 
@@ -98,67 +101,75 @@ bool isLossyCompression(Compression c)
 
 bool isValidDeepCompression(Compression c)
 {
-  switch(c)
-  {
-      case NO_COMPRESSION:
-      case RLE_COMPRESSION:
-      case ZIPS_COMPRESSION:
-          return true;
-      default :
-          return false;
-  }
-}
-
-
-Compressor *
-newCompressor (Compression c, size_t maxScanLineSize, const Header &hdr)
-{
     switch (c)
     {
-      case RLE_COMPRESSION:
-
-	return new RleCompressor (hdr, maxScanLineSize);
-
-      case ZIPS_COMPRESSION:
-
-	return new ZipCompressor (hdr, maxScanLineSize, 1);
-
-      case ZIP_COMPRESSION:
-
-	return new ZipCompressor (hdr, maxScanLineSize, 16);
-
-      case PIZ_COMPRESSION:
-
-	return new PizCompressor (hdr, maxScanLineSize, 32);
-
-      case PXR24_COMPRESSION:
-
-	return new Pxr24Compressor (hdr, maxScanLineSize, 16);
-
-      case B44_COMPRESSION:
-
-	return new B44Compressor (hdr, maxScanLineSize, 32, false);
-
-      case B44A_COMPRESSION:
-
-	return new B44Compressor (hdr, maxScanLineSize, 32, true);
-
-      case DWAA_COMPRESSION:
-
-	return new DwaCompressor (hdr, static_cast<int>(maxScanLineSize), 32, 
-                               DwaCompressor::STATIC_HUFFMAN);
-
-      case DWAB_COMPRESSION:
-
-	return new DwaCompressor (hdr, static_cast<int>(maxScanLineSize), 256, 
-                               DwaCompressor::STATIC_HUFFMAN);
-
-      default:
-
-	return 0;
+        case NO_COMPRESSION:
+        case RLE_COMPRESSION:
+        case ZIPS_COMPRESSION:
+        case HT_COMPRESSION:
+        case HT256_COMPRESSION: return true;
+        default: return false;
     }
 }
 
+Compressor*
+newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
+{
+    switch (c)
+    {
+        case RLE_COMPRESSION: return new RleCompressor (hdr, maxScanLineSize);
+
+        case ZIPS_COMPRESSION:
+
+            return new ZipCompressor (hdr, maxScanLineSize, 1);
+
+        case ZIP_COMPRESSION:
+
+            return new ZipCompressor (hdr, maxScanLineSize, 16);
+
+        case PIZ_COMPRESSION:
+
+            return new PizCompressor (hdr, maxScanLineSize, 32);
+
+        case PXR24_COMPRESSION:
+
+            return new Pxr24Compressor (hdr, maxScanLineSize, 16);
+
+        case B44_COMPRESSION:
+
+            return new B44Compressor (hdr, maxScanLineSize, 32, false);
+
+        case B44A_COMPRESSION:
+
+            return new B44Compressor (hdr, maxScanLineSize, 32, true);
+
+        case DWAA_COMPRESSION:
+
+            return new DwaCompressor (
+                hdr,
+                static_cast<int> (maxScanLineSize),
+                32,
+                DwaCompressor::STATIC_HUFFMAN);
+
+        case DWAB_COMPRESSION:
+
+            return new DwaCompressor (
+                hdr,
+                static_cast<int> (maxScanLineSize),
+                256,
+                DwaCompressor::STATIC_HUFFMAN);
+
+        case HT_COMPRESSION:
+
+            return new HTCompressor (hdr);
+
+         case HT256_COMPRESSION:
+
+            return new HTCompressor (hdr, 256);
+
+        default: return 0;
+    }
+}
 
 // for a given compression type, return the number of scanlines
 // compressed into a single chunk
@@ -180,10 +191,10 @@ numLinesInBuffer(Compression comp)
             return 16;
         case B44_COMPRESSION:
         case B44A_COMPRESSION:
-        case DWAA_COMPRESSION:
-            return 32;
-        case DWAB_COMPRESSION:
-            return 256;
+        case DWAA_COMPRESSION: return 32;
+        case HT256_COMPRESSION:
+        case DWAB_COMPRESSION: return 256;
+        case HT_COMPRESSION: return 16000;
 
         default:
 	        throw IEX_NAMESPACE::ArgExc ("Unknown compression type");

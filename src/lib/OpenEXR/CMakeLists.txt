@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) Contributors to the OpenEXR Project.
-
 openexr_define_library(OpenEXR
   PRIV_EXPORT OPENEXR_EXPORTS
   CURDIR ${CMAKE_CURRENT_SOURCE_DIR}
@@ -67,6 +66,7 @@ openexr_define_library(OpenEXR
     ImfGenericInputFile.cpp
     ImfGenericOutputFile.cpp
     ImfHeader.cpp
+    ImfHTCompressor.cpp
     ImfHuf.cpp
     ImfIDManifest.cpp
     ImfIDManifestAttribute.cpp
@@ -160,6 +160,7 @@ openexr_define_library(OpenEXR
     ImfGenericInputFile.h
     ImfGenericOutputFile.h
     ImfHeader.h
+    ImfHTCompressor.h
     ImfHuf.h
     ImfIDManifest.h
     ImfIDManifestAttribute.h

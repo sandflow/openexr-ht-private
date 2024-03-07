@@ -56,16 +56,12 @@ CompressionAttribute::readValueFrom (OPENEXR_IMF_INTERNAL_NAMESPACE::IStream &is
     // (Header::sanityCheck will throw an exception when files with invalid Compression types are read)
     //
 
-    if (tmp!= NO_COMPRESSION &&
-      tmp != RLE_COMPRESSION &&
-      tmp != ZIPS_COMPRESSION &&
-      tmp != ZIP_COMPRESSION &&
-      tmp != PIZ_COMPRESSION &&
-      tmp != PXR24_COMPRESSION &&
-      tmp != B44_COMPRESSION &&
-      tmp != B44A_COMPRESSION &&
-      tmp != DWAA_COMPRESSION &&
-      tmp != DWAB_COMPRESSION)
+    if (tmp != NO_COMPRESSION && tmp != RLE_COMPRESSION &&
+        tmp != ZIPS_COMPRESSION && tmp != ZIP_COMPRESSION &&
+        tmp != PIZ_COMPRESSION && tmp != PXR24_COMPRESSION &&
+        tmp != B44_COMPRESSION && tmp != B44A_COMPRESSION &&
+        tmp != DWAA_COMPRESSION && tmp != DWAB_COMPRESSION &&
+        tmp != HT_COMPRESSION && tmp != HT256_COMPRESSION)
     {
         tmp = NUM_COMPRESSION_METHODS;
     }

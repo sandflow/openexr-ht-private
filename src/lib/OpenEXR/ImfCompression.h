@@ -46,7 +46,11 @@ enum IMF_EXPORT_ENUM Compression
                                 // wise and faster to decode full frames
                                 // than DWAA_COMPRESSION.
 
-    NUM_COMPRESSION_METHODS	// number of different compression methods
+    HT_COMPRESSION = 10,
+
+    HT256_COMPRESSION = 11,
+
+    NUM_COMPRESSION_METHODS // number of different compression methods
 };
 
 /// Controls the default zip compression level used. Zip is used for

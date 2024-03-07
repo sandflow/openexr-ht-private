@@ -27,6 +27,9 @@ function(OPENEXR_DEFINE_LIBRARY libname)
                           PRIVATE cxx_std_${OPENEXR_CXX_STANDARD}
                           INTERFACE cxx_std_11 )
 
+  # we are embedding OpenJPH
+  target_include_directories(${objlib} PRIVATE ${openjph_SOURCE_DIR}/src/core/common)
+
   if(OPENEXR_CURLIB_PRIV_EXPORT AND BUILD_SHARED_LIBS)
     target_compile_definitions(${objlib} PRIVATE ${OPENEXR_CURLIB_PRIV_EXPORT})
     if(WIN32)
@@ -44,6 +47,7 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   if(OPENEXR_CURLIB_PRIVATE_DEPS)
     target_link_libraries(${objlib} PRIVATE ${OPENEXR_CURLIB_PRIVATE_DEPS})
   endif()
+  target_link_libraries(${objlib} PRIVATE openjph)
   set_target_properties(${objlib} PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF

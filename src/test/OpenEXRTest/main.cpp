@@ -32,6 +32,7 @@
 #include "testDwaLookups.h"
 #include "testExistingStreams.h"
 #include "testFutureProofing.h"
+#include "testHTCompression.h"
 #include "testHuf.h"
 #include "testWav.h"
 #include "testChannels.h"
@@ -210,6 +211,7 @@ main (int argc, char *argv[])
     TEST (testCustomAttributes, "core");
     TEST (testLineOrder, "basic");
     TEST (testCompression, "basic");
+    TEST (testHTCompression, "basic");
     TEST (testCopyPixels, "basic");
     TEST (testLut, "basic");
     TEST (testSampleImages, "basic");

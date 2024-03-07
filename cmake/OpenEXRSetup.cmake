@@ -253,6 +253,25 @@ if(OPENEXR_FORCE_INTERNAL_ZLIB OR NOT TARGET ZLIB::ZLIB)
   endif()
 endif()
 
+
+#######################################
+# Get OpenJPH
+#######################################
+
+message(STATUS "Fetching OpenJPH")
+
+include(FetchContent)
+FetchContent_Declare(
+  openjph
+  GIT_REPOSITORY https://github.com/aous72/OpenJPH
+  GIT_TAG        origin/master
+)
+
+FetchContent_MakeAvailable(openjph)
+set_property(TARGET openjph PROPERTY OJPH_ENABLE_TIFF_SUPPORT OFF)
+set_property(TARGET openjph PROPERTY OJPH_BUILD_TESTS OFF)
+set_property(TARGET openjph PROPERTY OJPH_BUILD_EXECUTABLES OFF)
+
 #######################################
 # Find or install Imath
 #######################################
