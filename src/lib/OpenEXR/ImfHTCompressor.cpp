@@ -129,7 +129,7 @@ HTCompressor::compress (
     ojph::codestream  cs;
     cs.set_planar (false);
 
-    ojph::param_siz siz =cs.access_siz ();
+    ojph::param_siz siz = cs.access_siz ();
 
     siz.set_num_components (this->_num_comps);
     for (ojph::ui32 c = 0; c < this->_num_comps; c++)
@@ -198,11 +198,6 @@ int
 HTCompressor::uncompress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
-    if (this->_buffer) {
-        delete[] this->_buffer;
-        this->_buffer = NULL;
-    }
-
     ojph::mem_infile infile;
     infile.open (reinterpret_cast<const ojph::ui8*> (inPtr), inSize);
 
@@ -221,7 +216,9 @@ HTCompressor::uncompress (
 
     assert (sizeof (int16_t) == pixelTypeSize (HALF));
 
-    this->_buffer = new int16_t[this->_num_comps * width * height];
+    if (! this->_buffer) {
+        this->_buffer = new int16_t[this->_num_comps * width * height];
+    }
 
     int16_t* line_pixels = this->_buffer;
 
