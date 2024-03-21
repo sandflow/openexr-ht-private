@@ -46,7 +46,8 @@ public:
     uncompress (const char* inPtr, int inSize, int minY, const char*& outPtr);
 
 private:
-
+    ojph::ui32                 _width;
+    ojph::ui32                 _height;
     ojph::mem_outfile          _output;
     int                        _num_comps;
     int16_t*                   _buffer;

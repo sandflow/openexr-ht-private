@@ -99,6 +99,10 @@ HTCompressor::HTCompressor (const Header& hdr, int numScanLines)
         }
     }
 
+    Box2i dw     = this->header ().dataWindow ();
+    this->_height = dw.size ().y + 1;
+    this->_width  = dw.size ().x + 1;
+    this->_buffer = new int16_t[this->_num_comps * this->_width * this->_height];
 }
 
 HTCompressor::~HTCompressor ()
@@ -125,6 +129,9 @@ HTCompressor::compress (
     Box2i      dw     = this->header ().dataWindow ();
     ojph::ui32 height = std::min (dw.size ().y + 1 - minY, this->_numScanLines);
     ojph::ui32 width  = dw.size ().x + 1;
+
+    assert(this->_width == width);
+    assert(this->_height == height);
 
     ojph::codestream  cs;
     cs.set_planar (false);
@@ -208,6 +215,8 @@ HTCompressor::uncompress (
     ojph::ui32 width    = siz.get_image_extent ().x - siz.get_image_offset ().x;
     ojph::ui32 height   = siz.get_image_extent ().y - siz.get_image_offset ().y;
 
+    assert(this->_width == width);
+    assert(this->_height == height);
     assert (this->_num_comps == siz.get_num_components ());
 
     cs.set_planar (false);
@@ -215,11 +224,6 @@ HTCompressor::uncompress (
     cs.create ();
 
     assert (sizeof (int16_t) == pixelTypeSize (HALF));
-
-    if (! this->_buffer) {
-        this->_buffer = new int16_t[this->_num_comps * width * height];
-    }
-
     int16_t* line_pixels = this->_buffer;
 
     for (uint32_t i = 0; i < height; ++i)
