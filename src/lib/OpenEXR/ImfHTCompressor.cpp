@@ -103,8 +103,6 @@ HTCompressor::HTCompressor (const Header& hdr, int numScanLines)
 
 HTCompressor::~HTCompressor ()
 {
-    this->_output.close ();
-    this->_input.close ();
     delete[] this->_buffer;
 }
 
@@ -128,9 +126,10 @@ HTCompressor::compress (
     ojph::ui32 height = std::min (dw.size ().y + 1 - minY, this->_numScanLines);
     ojph::ui32 width  = dw.size ().x + 1;
 
-    this->_codestream.set_planar (false);
+    ojph::codestream  cs;
+    cs.set_planar (false);
 
-    ojph::param_siz siz = this->_codestream.access_siz ();
+    ojph::param_siz siz =cs.access_siz ();
 
     siz.set_num_components (this->_num_comps);
     for (ojph::ui32 c = 0; c < this->_num_comps; c++)
@@ -142,16 +141,17 @@ HTCompressor::compress (
     siz.set_image_extent (ojph::point (width, height));
     siz.set_tile_size (ojph::size (width, height));
 
-    ojph::param_cod cod = this->_codestream.access_cod ();
+    ojph::param_cod cod = cs.access_cod ();
 
     cod.set_color_transform (this->_isRGB);
     cod.set_reversible (true);
     cod.set_block_dims (128, 32);
     cod.set_num_decomposition (5);
 
+    this->_output.close ();
     this->_output.open ();
 
-    this->_codestream.write_headers (&this->_output);
+    cs.write_headers (&this->_output);
 
     assert (
         inSize == (this->_num_comps * pixelTypeSize (HALF) * height * width));
@@ -159,7 +159,7 @@ HTCompressor::compress (
     const int16_t*  pixels      = (const int16_t*) inPtr;
     const int16_t*  line_pixels = pixels;
     ojph::ui32      next_comp   = 0;
-    ojph::line_buf* cur_line    = this->_codestream.exchange (NULL, next_comp);
+    ojph::line_buf* cur_line    = cs.exchange (NULL, next_comp);
 
     for (ojph::ui32 i = 0; i < height; ++i)
     {
@@ -179,13 +179,13 @@ HTCompressor::compress (
                 cur_line->i32[p] = c < 0 ? -32769 - c : c;
             }
 
-            cur_line = this->_codestream.exchange (cur_line, next_comp);
+            cur_line = cs.exchange (cur_line, next_comp);
         }
 
         line_pixels += width * this->_num_comps;
     }
 
-    this->_codestream.flush ();
+    cs.flush ();
 
     assert (this->_output.tell () >= 0);
 
@@ -198,18 +198,26 @@ int
 HTCompressor::uncompress (
     const char* inPtr, int inSize, int minY, const char*& outPtr)
 {
-    this->_input.open (reinterpret_cast<const ojph::ui8*> (inPtr), inSize);
-    this->_codestream.read_headers (&this->_input);
+    if (this->_buffer) {
+        delete[] this->_buffer;
+        this->_buffer = NULL;
+    }
 
-    ojph::param_siz siz = this->_codestream.access_siz ();
+    ojph::mem_infile infile;
+    infile.open (reinterpret_cast<const ojph::ui8*> (inPtr), inSize);
+
+    ojph::codestream  cs;
+    cs.read_headers (&infile);
+
+    ojph::param_siz siz = cs.access_siz ();
     ojph::ui32 width    = siz.get_image_extent ().x - siz.get_image_offset ().x;
     ojph::ui32 height   = siz.get_image_extent ().y - siz.get_image_offset ().y;
 
     assert (this->_num_comps == siz.get_num_components ());
 
-    this->_codestream.set_planar (false);
+    cs.set_planar (false);
 
-    this->_codestream.create ();
+    cs.create ();
 
     assert (sizeof (int16_t) == pixelTypeSize (HALF));
 
@@ -223,7 +231,7 @@ HTCompressor::uncompress (
         for (uint32_t c = 0; c < this->_num_comps; c++)
         {
             ojph::ui32      next_comp = 0;
-            ojph::line_buf* cur_line  = this->_codestream.pull (next_comp);
+            ojph::line_buf* cur_line  = cs.pull (next_comp);
 
             assert (next_comp == c);
 
@@ -239,6 +247,8 @@ HTCompressor::uncompress (
 
         line_pixels += width * this->_num_comps;
     }
+
+    infile.close();
 
     outPtr = (const char*) this->_buffer;
 
