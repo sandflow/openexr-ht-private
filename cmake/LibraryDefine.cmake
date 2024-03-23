@@ -30,6 +30,9 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   # we are embedding OpenJPH
   target_include_directories(${objlib} PRIVATE ${openjph_SOURCE_DIR}/src/core/common)
 
+  # we are including KDU
+  target_include_directories(${objlib} PRIVATE ${KDU_INCLUDE_DIR})
+
   # we are embedding libdeflate
   target_include_directories(${objlib} PRIVATE ${EXR_DEFLATE_INCLUDE_DIR})
 
@@ -46,11 +49,10 @@ function(OPENEXR_DEFINE_LIBRARY libname)
   if(OPENEXR_CURLIB_CURBINDIR)
     target_include_directories(${objlib} PRIVATE $<BUILD_INTERFACE:${OPENEXR_CURLIB_CURBINDIR}>)
   endif()
-  target_link_libraries(${objlib} PUBLIC ${PROJECT_NAME}::Config ${OPENEXR_CURLIB_DEPENDENCIES})
+  target_link_libraries(${objlib} PUBLIC ${PROJECT_NAME}::Config ${OPENEXR_CURLIB_DEPENDENCIES} ${KDU_LIBRARY} ${CMAKE_DL_LIBS} openjph)
   if(OPENEXR_CURLIB_PRIVATE_DEPS)
     target_link_libraries(${objlib} PRIVATE ${OPENEXR_CURLIB_PRIVATE_DEPS})
   endif()
-  target_link_libraries(${objlib} PRIVATE openjph)
   set_target_properties(${objlib} PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF
