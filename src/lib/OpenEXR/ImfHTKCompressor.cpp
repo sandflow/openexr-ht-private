@@ -165,11 +165,8 @@ HTKCompressor::compress (
 
     siz_params siz;
     siz.set (Scomponents, 0, 0, this->_num_comps);
-    for (uint8_t i = 0; i < this->_num_comps; i++)
-    {
-        siz.set (Sdims, i, 0, height);
-        siz.set (Sdims, i, 1, width);
-    }
+    siz.set (Sdims, 0, 0, height);
+    siz.set (Sdims, 0, 1, width);
     siz.set (Sprecision, 0, 0, 16);
     siz.set (Ssigned, 0, 0, true);
     static_cast<kdu_params&> (siz).finalize ();
@@ -189,7 +186,6 @@ HTKCompressor::compress (
     cod->set (Cblk, 0, 0, 32);
     cod->set (Cblk, 0, 1, 128);
     cod->set (Clevels, 0, 0, 5);
-    if (this->_isRGB) cod->set (Cycc, 0, 0, true);
 
     kdu_params *nlt = codestream.access_siz ()->access_cluster(NLT_params);
 
