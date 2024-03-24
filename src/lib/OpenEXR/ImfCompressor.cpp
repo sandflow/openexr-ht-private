@@ -68,6 +68,7 @@ isValidCompression (Compression c)
         case DWAB_COMPRESSION:
         case HT_COMPRESSION:
         case HT256_COMPRESSION:
+        case HTK_COMPRESSION:
         case HTK256_COMPRESSION: return true;
 
         default: return false;
@@ -97,6 +98,7 @@ isValidDeepCompression (Compression c)
         case ZIPS_COMPRESSION:
         case HT_COMPRESSION:
         case HT256_COMPRESSION:
+        case HTK_COMPRESSION:
         case HTK256_COMPRESSION: return true;
         default: return false;
     }
@@ -157,6 +159,10 @@ newCompressor (Compression c, size_t maxScanLineSize, const Header& hdr)
 
             return new HTCompressor (hdr, 256);
 
+        case HTK_COMPRESSION:
+
+            return new HTKCompressor (hdr);
+
         case HTK256_COMPRESSION:
 
             return new HTKCompressor (hdr, 256);
@@ -185,7 +191,8 @@ numLinesInBuffer (Compression comp)
         case HT256_COMPRESSION:
         case HTK256_COMPRESSION:
         case DWAB_COMPRESSION: return 256;
-        case HT_COMPRESSION: return 16000;
+        case HT_COMPRESSION:
+        case HTK_COMPRESSION: return 16000;
 
         default: throw IEX_NAMESPACE::ArgExc ("Unknown compression type");
     }

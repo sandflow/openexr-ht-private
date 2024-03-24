@@ -316,6 +316,7 @@ writeRead (
 
     writeRead (array, filename.c_str (), w, h, HT_COMPRESSION);
     writeRead (array, filename.c_str (), w, h, HT256_COMPRESSION);
+    writeRead (array, filename.c_str (), w, h, HTK_COMPRESSION);
     writeRead (array, filename.c_str (), w, h, HTK256_COMPRESSION);
 }
 

@@ -130,6 +130,14 @@ HTKCompressor::HTKCompressor (const Header& hdr, int numScanLines)
 
     this->_heights.resize(this->_num_comps);
 
+    this->_sample_offsets.resize(this->_num_comps);
+    for(int i = 0; i < this->_sample_offsets.size(); i++) {
+        this->_sample_offsets[i] = this->_cs_to_file_ch[i] * this->_width;
+    }
+
+    this->_row_gaps.resize(this->_num_comps);
+    std::fill(this->_row_gaps.begin(), this->_row_gaps.end(), this->_width * this->_num_comps);
+
     kdu_core::kdu_customize_errors(&error_handler);
 }
 
@@ -167,13 +175,17 @@ HTKCompressor::compress (
     siz.set (Scomponents, 0, 0, this->_num_comps);
     siz.set (Sdims, 0, 0, height);
     siz.set (Sdims, 0, 1, width);
-    siz.set (Sprecision, 0, 0, 16);
-    siz.set (Ssigned, 0, 0, true);
+    siz.set (Nprecision, 0, 0, 16);
+    siz.set (Nsigned, 0, 0, true);
     static_cast<kdu_params&> (siz).finalize ();
 
     kdu_codestream codestream;
 
     this->_output.close ();
+
+    // kdu_simple_file_target target("/tmp/out.j2c");
+    // codestream.create (&siz, &target);
+
     codestream.create (&siz, &this->_output);
 
     codestream.set_disabled_auto_comments (0xFFFFFFFF);
@@ -186,19 +198,19 @@ HTKCompressor::compress (
     cod->set (Cblk, 0, 0, 32);
     cod->set (Cblk, 0, 1, 128);
     cod->set (Clevels, 0, 0, 5);
+    cod->set (Cycc, 0, 0, this->_isRGB);
 
     kdu_params *nlt = codestream.access_siz ()->access_cluster(NLT_params);
 
-    //nlt->set(NLType, 0, 0, NLType_SMAG);
+    nlt->set(NLType, 0, 0, NLType_SMAG);
 
     codestream.access_siz ()->finalize_all ();
 
     kdu_stripe_compressor compressor;
-    compressor.start (
-        codestream, 0, NULL, NULL, 0, false, false, false, 0, 0, true);
+    compressor.start (codestream);
 
     std::fill(this->_heights.begin(), this->_heights.end(), height);
-    compressor.push_stripe((kdu_int16 *) inPtr, this->_heights.data());
+    compressor.push_stripe((kdu_int16 *) inPtr, this->_heights.data(), this->_sample_offsets.data(), NULL, this->_row_gaps.data());
 
     compressor.finish();
 
@@ -231,7 +243,7 @@ HTKCompressor::uncompress (
     d.start(cs);
 
     std::fill(this->_heights.begin(), this->_heights.end(), height);
-    d.pull_stripe((kdu_int16 *) this->_buffer, this->_heights.data());
+    d.pull_stripe((kdu_int16 *) this->_buffer, this->_heights.data(), this->_sample_offsets.data(), NULL, this->_row_gaps.data());
 
     d.finish();
 

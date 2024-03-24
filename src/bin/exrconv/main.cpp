@@ -44,6 +44,7 @@ static const char *compression_string_table[NUM_COMPRESSION_METHODS] = {
                               // than DWAA_COMPRESSION.
 "HT_COMPRESSION",
 "HT256_COMPRESSION",
+"HTK_COMPRESSION"
 "HTK256_COMPRESSION",
 };
 

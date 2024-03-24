@@ -77,6 +77,8 @@ private:
     uint32_t                   _width;
     uint32_t                   _height;
     std::vector<int>           _heights;
+    std::vector<int>           _sample_offsets;
+    std::vector<int>           _row_gaps;
     mem_compressed_target      _output;
     int                        _num_comps;
     int16_t*                   _buffer;
