@@ -33,6 +33,7 @@
 #include "testExistingStreams.h"
 #include "testFutureProofing.h"
 #include "testHeader.h"
+#include "testHTCompression.h"
 #include "testHuf.h"
 #include "testIDManifest.h"
 #include "testInputPart.h"
@@ -190,6 +191,7 @@ main (int argc, char* argv[])
     TEST (testCustomAttributes, "core");
     TEST (testLineOrder, "basic");
     TEST (testCompression, "basic");
+    TEST (testHTCompression, "basic");
     TEST (testCopyPixels, "basic");
     TEST (testLut, "basic");
     TEST (testSampleImages, "basic");
